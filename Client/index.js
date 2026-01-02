@@ -162,16 +162,22 @@ const receiveServerListFromConnectServer = async (buffer) => {
 
   const selectServerId = async (callback) => {
     console.log('Servers list:');
+    if (!globalStorage.serverList.serverLoadInfo || globalStorage.serverList.serverLoadInfo.length === 0) {
+      console.log('No servers available. Please ensure GameServer is running and connected to ConnectServer.');
+      process.exit(1);
+      return;
+    }
     globalStorage.serverList.serverLoadInfo.forEach(server => {
       console.log(`[${server.serverId}] (${server.loadPercentage})`);
     });
     // let selectedServerId = await ask('Enter the server ID that you want to connect with: ');
-    let selectedServerId = 0;
+    let selectedServerId = globalStorage.serverList.serverLoadInfo[0].serverId;
     selectedServerId = parseInt(selectedServerId);
     // Validate input.
     if (!globalStorage.serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
       console.log('Please enter a valid server ID.');
-      await selectServerId(callback);
+      process.exit(1);
+      return;
     } else {
       callback(selectedServerId);
     }

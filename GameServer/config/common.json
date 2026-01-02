@@ -6,7 +6,7 @@
   "serial": "TbYehR2hFUPBKgZj",
   "maxUsers": 1000,
   "joinServerAddress": "127.0.0.1",
-  "joinServerPort": 55970,
+  "joinServerPort": 55962,
   "connectServerAddress": "127.0.0.1",
   "connectServerPort": 55557
 }

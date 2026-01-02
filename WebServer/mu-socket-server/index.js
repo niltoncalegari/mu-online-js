@@ -6,8 +6,13 @@ const {EOL} = require('os');
 const server = new WebSocketServer({port: 44404});
 
 const allowedIps = new Set([
-  '127.0.0.1', '::ffff:127.0.0.1', 'localhost', '::ffff:172.18.0.1', '::1',
+  '127.0.0.1', '::ffff:127.0.0.1', 'localhost', '::ffff:172.18.0.1', '::ffff:172.19.0.1', '::1',
 ]);
+
+// Allow all Docker network IPs (172.x.x.x range)
+const isDockerNetworkIp = (ip) => {
+  return ip.startsWith('::ffff:172.') || ip.startsWith('172.');
+};
 
 const connectedClients = new Map();
 const globalStore = {
@@ -50,7 +55,7 @@ const sendToProcess = (process, payload) => {
 
 server.on('connection', (socket, request) => {
   const ip = request.socket.remoteAddress;
-  if (!allowedIps.has(ip)) {
+  if (!allowedIps.has(ip) && !isDockerNetworkIp(ip)) {
     console.log(`Connection rejected from ${ip}`);
     socket.close();
     return;

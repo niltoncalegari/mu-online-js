@@ -32,7 +32,7 @@ module.exports = ({payload, sendToClient, globalStore}) => {
     return;
   }
 
-  const child = spawn('node', ['index.js'], {
+  const child = spawn('/usr/local/bin/node', ['index.js'], {
     cwd: serverPath,
     env: {
       PATH: process.env.PATH,

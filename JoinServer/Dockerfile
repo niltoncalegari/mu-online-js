@@ -12,7 +12,7 @@ RUN yarn install
 RUN yarn build
 
 # Expose the necessary port
-EXPOSE 55970
+EXPOSE 55962
 
 # Set the default command to run the JoinServer
 CMD ["yarn", "start"]
