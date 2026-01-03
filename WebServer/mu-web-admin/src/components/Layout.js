@@ -80,7 +80,7 @@ const Layout = ({children}) => {
     {
       text: 'Manage accounts',
       icon: <MdManageAccounts/>,
-      onClick: () => router.push('/'),
+      onClick: () => router.push('/manage-accounts'),
       pattern: '/manage-accounts',
       isActive: false,
     },

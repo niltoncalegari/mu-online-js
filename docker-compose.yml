@@ -26,6 +26,7 @@ services:
       - "55557:55557/udp"
     volumes:
       - ./ssl:/ssl
+      - ./ConnectServer/src/config:/app/src/config
     networks:
       - mu
 
@@ -46,6 +47,25 @@ services:
     networks:
       - mu
 
+  gameserver:
+    build:
+      context: ./GameServer
+      dockerfile: ./Dockerfile
+    restart: always
+    depends_on:
+      - joinserver
+      - connectserver
+    ports:
+      - "55901:55901"
+    volumes:
+      - ./ssl:/ssl
+      - ./GameServer:/app
+    environment:
+      COMMON_JOINSERVERADDRESS: joinserver
+      COMMON_CONNECTSERVERADDRESS: connectserver
+    networks:
+      - mu
+
   web-admin:
     build:
       context: ./WebServer/mu-web-admin
@@ -53,6 +73,14 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    env_file:
+      - ./WebServer/mu-web-admin/.env
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: muonline
     networks:
       - mu
 

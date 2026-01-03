@@ -64,10 +64,19 @@ server.on('connection', (socket, request) => {
   const clientNameInQuery = url.parse(request.url, true)?.query['x-client-name'];
   const clientName = clientNameInQuery || request.headers['x-client-name'];
 
-  if (!clientName || connectedClients.has(clientName)) {
-    console.log(`Connection rejected from ${ip} - invalid or duplicate client name`);
+  if (!clientName) {
+    console.log(`Connection rejected from ${ip} - invalid client name`);
     socket.close();
     return;
+  }
+
+  // If client already exists, close the old connection first
+  if (connectedClients.has(clientName)) {
+    const oldSocket = connectedClients.get(clientName);
+    if (oldSocket && oldSocket.readyState === 1) { // 1 = OPEN
+      oldSocket.close();
+    }
+    connectedClients.delete(clientName);
   }
 
   console.log(`Connection accepted from ${ip} for client "${clientName}"`);
@@ -100,6 +109,11 @@ server.on('connection', (socket, request) => {
 
   socket.on('close', () => {
     console.log(`Connection closed from ${ip} for client "${clientName}"`);
+    connectedClients.delete(clientName);
+  });
+
+  socket.on('error', (error) => {
+    console.log(`Socket error from ${ip} for client "${clientName}": ${error.message}`);
     connectedClients.delete(clientName);
   });
 });

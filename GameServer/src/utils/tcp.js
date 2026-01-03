@@ -13,12 +13,28 @@ const fs = require('fs');
 const db = require('@mu-online-js/mu-db');
 const {getConfig} = require('./config');
 
+// Use /ssl path in Docker, fallback to relative path for local development
+let sslPath = './../ssl';
+if (fs.existsSync('/ssl/key.pem')) {
+  sslPath = '/ssl';
+} else if (fs.existsSync('./ssl/key.pem')) {
+  sslPath = './ssl';
+}
+
+// Verify SSL files exist before trying to read them
+const keyPath = `${sslPath}/key.pem`;
+const certPath = `${sslPath}/cert.pem`;
+
+if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+  throw new Error(`SSL files not found. Tried paths: /ssl, ./ssl, ./../ssl. Key: ${keyPath}, Cert: ${certPath}`);
+}
+
 const serverOptions = {
-  key: fs.readFileSync('./../ssl/key.pem'),
-  cert: fs.readFileSync('./../ssl/cert.pem'),
+  key: fs.readFileSync(keyPath),
+  cert: fs.readFileSync(certPath),
   rejectUnauthorized: true,
   requestCert: false,
-  ca: [fs.readFileSync('./../ssl/cert.pem')],
+  ca: [fs.readFileSync(certPath)],
 };
 let tcpServer;
 const {tcpSockets} = globalState;

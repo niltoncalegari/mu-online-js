@@ -32,9 +32,10 @@ module.exports = ({payload, sendToClient, globalStore}) => {
     return;
   }
 
-  const child = spawn('/usr/local/bin/node', ['index.js'], {
+  const child = spawn(process.execPath, ['index.js'], {
     cwd: serverPath,
     env: {
+      ...process.env,
       PATH: process.env.PATH,
       DEBUG: true
     }
@@ -68,6 +69,19 @@ module.exports = ({payload, sendToClient, globalStore}) => {
     };
     sendToClient('mu-web-admin', response);
     console.error(response);
+  });
+
+  child.on('error', (error) => {
+    console.error(`Error spawning process for ${serverName}:`, error);
+    delete globalStore.childProcesses[serverName];
+    const response = {
+      event: 'serverError',
+      payload: {
+        serverName,
+        error: error.message
+      }
+    };
+    sendToClient('mu-web-admin', response);
   });
 
   child.on('close', (code) => {

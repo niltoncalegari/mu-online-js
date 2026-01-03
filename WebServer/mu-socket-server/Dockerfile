@@ -2,17 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy the package.json file into the container
+# Copy package files first
 COPY package.json yarn.lock ./
 
-# Copy the rest of the application files into the container
-COPY . .
-
-# Install all prod dependencies
+# Install dependencies
 RUN yarn install --prod
+
+# Copy the rest of the application files (excluding node_modules via .dockerignore)
+COPY . .
 
 # Expose the necessary port
 EXPOSE 44404
 
-# Set the default command to run the ConnectServer
+# Set the default command to run the SocketServer
 CMD ["yarn", "start"]
